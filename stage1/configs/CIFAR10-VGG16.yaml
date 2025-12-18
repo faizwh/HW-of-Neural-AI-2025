@@ -1,7 +1,8 @@
 T: 4
 surrogate: sigmoid
+alpha: 4.0
 arch: VGG
-num_layers: 8
+num_layers: 16
 light_classifier: True
 
 dataset: CIFAR10

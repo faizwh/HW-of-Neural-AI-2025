@@ -1,7 +1,8 @@
 T: 4
-surrogate: sigmoid
-arch: ResNet
-num_layers: 34
+surrogate: my_triangular
+alpha: 10.0
+arch: VGG
+num_layers: 8
 light_classifier: True
 
 dataset: CIFAR10
