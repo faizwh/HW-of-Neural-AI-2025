@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     # log config info to wandb
     if args.log:
-        exp_name = f"{time.strftime('%Y%m%d-%H%M%S')}-stage1-{config['dataset']}-{config['arch']}{config['num_layers']}-{config['surrogate']}"
+        exp_name = f"{time.strftime('%Y%m%d-%H%M%S')}-stage1-{config['dataset']}-{config['arch']}{config['num_layers']}-{config['surrogate']}-{config['alpha']}"
         save_path = os.path.join(config['output_dir'], exp_name)
         if not os.path.exists(save_path):
             os.makedirs(save_path, exist_ok=True)
