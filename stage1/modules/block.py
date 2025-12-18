@@ -8,19 +8,19 @@ from typing import Any
 class SpikingBasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, in_channels, out_channels, surrogate, T, stride=1, downsample=None):
+    def __init__(self, in_channels, out_channels, surrogate, alpha, T, stride=1, downsample=None):
         super(SpikingBasicBlock, self).__init__()
         
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channels)
         self.split1 = SplitTemporalDim(T)
-        self.lif1 = LIF(surrogate_function=surrogate)
+        self.lif1 = LIF(surrogate_function=surrogate, alpha=alpha)
         self.merge1 = MergeTemporalDim(T)
         
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channels)
         self.split2 = SplitTemporalDim(T)
-        self.lif2 = LIF(surrogate_function=surrogate)
+        self.lif2 = LIF(surrogate_function=surrogate, alpha=alpha)
         self.merge2 = MergeTemporalDim(T)
         
         self.downsample = downsample
@@ -50,25 +50,25 @@ class SpikingBasicBlock(nn.Module):
 class SpikingBottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, in_channels, out_channels, surrogate, T, stride=1, downsample=None):
+    def __init__(self, in_channels, out_channels, surrogate, alpha, T, stride=1, downsample=None):
         super(SpikingBottleneck, self).__init__()
         
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channels)
         self.split1 = SplitTemporalDim(T)
-        self.lif1 = LIF(surrogate_function=surrogate)
+        self.lif1 = LIF(surrogate_function=surrogate, alpha=alpha)
         self.merge1 = MergeTemporalDim(T)
         
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channels)
         self.split2 = SplitTemporalDim(T)
-        self.lif2 = LIF(surrogate_function=surrogate)
+        self.lif2 = LIF(surrogate_function=surrogate, alpha=alpha)
         self.merge2 = MergeTemporalDim(T)
         
         self.conv3 = nn.Conv2d(out_channels, out_channels * self.expansion, kernel_size=1, stride=1, bias=False)
         self.bn3 = nn.BatchNorm2d(out_channels * self.expansion)
         self.split3 = SplitTemporalDim(T)
-        self.lif3 = LIF(**surrogate)
+        self.lif3 = LIF(surrogate_function=surrogate, alpha=alpha)
         self.merge3 = MergeTemporalDim(T)
         
         self.downsample = downsample

@@ -20,7 +20,7 @@ standard_cfg = {
 
 class SpikingResNet(nn.Module):
     def __init__(self, num_layers, num_classes, in_channels, T, surrogate, 
-                 zero_init_residual, has_temporal_dim):
+                 alpha, zero_init_residual, has_temporal_dim):
         super(SpikingResNet, self).__init__()
         self.in_channels = 64
 
@@ -32,7 +32,7 @@ class SpikingResNet(nn.Module):
         self.conv1 = nn.Conv2d(in_channels, self.in_channels, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(self.in_channels)
         self.split1 = SplitTemporalDim(T)
-        self.lif1 = LIF(surrogate_function=surrogate)
+        self.lif1 = LIF(surrogate_function=surrogate, alpha=alpha)
         self.merge1 = MergeTemporalDim(T)
         # self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.maxpool = nn.Identity()
@@ -41,10 +41,10 @@ class SpikingResNet(nn.Module):
         block = cfg['block']
         layers = cfg['layers']
 
-        self.layer1 = self._make_layers(block, surrogate, T,  64, layers[0], stride=1)
-        self.layer2 = self._make_layers(block, surrogate, T, 128, layers[1], stride=2)
-        self.layer3 = self._make_layers(block, surrogate, T, 256, layers[2], stride=2)
-        self.layer4 = self._make_layers(block, surrogate, T, 512, layers[3], stride=2)
+        self.layer1 = self._make_layers(block, surrogate, alpha, T,  64, layers[0], stride=1)
+        self.layer2 = self._make_layers(block, surrogate, alpha, T, 128, layers[1], stride=2)
+        self.layer3 = self._make_layers(block, surrogate, alpha, T, 256, layers[2], stride=2)
+        self.layer4 = self._make_layers(block, surrogate, alpha, T, 512, layers[3], stride=2)
 
         self.adaptive_avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
@@ -63,24 +63,24 @@ class SpikingResNet(nn.Module):
                 elif isinstance(m, SpikingBasicBlock):
                     nn.init.constant_(m.bn2.weight, 0)
 
-    def _make_layers(self, block, surrogate, T, out_channels, num_blocks, stride=1):
+    def _make_layers(self, block, surrogate, alpha, T, out_channels, num_blocks, stride=1):
         downsample = None
         if stride != 1 or self.in_channels != out_channels * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.in_channels, out_channels * block.expansion, kernel_size=1, stride=stride, bias=False),
                 nn.BatchNorm2d(out_channels * block.expansion),
                 SplitTemporalDim(T),
-                LIF(surrogate_function=surrogate),
+                LIF(surrogate_function=surrogate, alpha=alpha),
                 MergeTemporalDim(T)
             )
 
         layers = []
-        layers.append(block(self.in_channels, out_channels, surrogate, T, stride, downsample))
+        layers.append(block(self.in_channels, out_channels, surrogate, alpha, T, stride, downsample))
         
         self.in_channels = out_channels * block.expansion
         
         for _ in range(1, num_blocks):
-            layers.append(block(self.in_channels, out_channels, surrogate, T))
+            layers.append(block(self.in_channels, out_channels, surrogate, alpha, T))
 
         return nn.Sequential(*layers)
 

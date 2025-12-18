@@ -18,13 +18,14 @@ cfg = {
 
 class SpikingVGG(nn.Module):
     def __init__(self, num_layers, num_classes, in_channels, T, 
-                 surrogate, dropout, light_classifier, has_temporal_dim):
+                 surrogate, alpha, dropout, light_classifier, has_temporal_dim):
         super().__init__()
         self.num_layers = num_layers
         self.num_classes = num_classes
         self.in_channels = in_channels
         self.T = T
         self.surrogate = surrogate
+        self.alpha = alpha
         self.light_classifier = light_classifier
         self.has_temporal_dim = has_temporal_dim
         self.dropout = dropout
@@ -57,7 +58,7 @@ class SpikingVGG(nn.Module):
                 layers.append(nn.Conv2d(in_channels, cfg[i], **self.conv_config))
                 layers.append(nn.BatchNorm2d(cfg[i]))
                 layers.append(SplitTemporalDim(self.T))
-                layers.append(LIF(surrogate_function=self.surrogate))
+                layers.append(LIF(surrogate_function=self.surrogate, alpha=self.alpha))
                 layers.append(MergeTemporalDim(self.T))
                 in_channels = cfg[i]
 
@@ -77,14 +78,14 @@ class SpikingVGG(nn.Module):
         layers.append(nn.Linear(in_channels * 1 * 1, 4096))
         layers.append(nn.BatchNorm1d(4096))
         layers.append(SplitTemporalDim(self.T))
-        layers.append(LIF(surrogate_function=self.surrogate))
+        layers.append(LIF(surrogate_function=self.surrogate, alpha=self.alpha))
         layers.append(nn.Dropout(self.dropout))
         layers.append(MergeTemporalDim(self.T))
 
         layers.append(nn.Linear(4096, 4096))
         layers.append(nn.BatchNorm1d(4096))
         layers.append(SplitTemporalDim(self.T))
-        layers.append(LIF(surrogate_function=self.surrogate))
+        layers.append(LIF(surrogate_function=self.surrogate, alpha=self.alpha))
         layers.append(nn.Dropout(self.dropout))
         layers.append(MergeTemporalDim(self.T))
         layers.append(nn.Linear(4096, self.num_classes))

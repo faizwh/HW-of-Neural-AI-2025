@@ -2,7 +2,8 @@ import yaml
 
 def config_parser(path):
     required = [
-        'T', 'surrogate', 'arch', 'num_layers', 'light_classifier',
+        'T', 'surrogate', 'alpha',
+        'arch', 'num_layers', 'light_classifier',
         'dataset', 'data_path', 'output_dir',
         'epochs', 'batch_size', 'learning_rate',
         'optimizer', 'momentum', 'weight_decay',

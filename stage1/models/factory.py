@@ -31,9 +31,10 @@ def build_vgg(config):
     has_temporal_dim = True if 'dvs' in dataset.lower() else False
     T = config['T']
     surrogate = config['surrogate']
+    alpha = config['alpha']
 
-    return SpikingVGG(num_layers, num_classes, in_channels, T, 
-                      surrogate, dropout, light_classifier, has_temporal_dim)
+    return SpikingVGG(num_layers, num_classes, in_channels, T, surrogate, 
+                      alpha, dropout, light_classifier, has_temporal_dim)
 
 def build_resnet(config):
     num_layers = config['num_layers']
@@ -43,7 +44,8 @@ def build_resnet(config):
     has_temporal_dim = True if 'DVS' in dataset else False
     T = config['T']
     surrogate = config['surrogate']
+    alpha = config['alpha']
     zero_init_residual = config['zero_init_residual']
 
-    return SpikingResNet(num_layers, num_classes, in_channels, T, 
-                         surrogate, zero_init_residual, has_temporal_dim)
+    return SpikingResNet(num_layers, num_classes, in_channels, T, surrogate, 
+                         alpha, zero_init_residual, has_temporal_dim)
