@@ -75,7 +75,6 @@ class Triangular(torch.autograd.Function):
         if ctx.needs_input_grad[0]:
             x, = ctx.saved_tensors
             alpha = ctx.alpha
-            
 
             h_x = 1.0 - alpha * x.abs()
             h_x = torch.clamp(h_x, min=0)
