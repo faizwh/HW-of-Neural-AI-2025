@@ -20,7 +20,6 @@ def config_parser(path):
         with open(path, "r") as file:
             config = yaml.safe_load(file)
             for key in config.keys():
-                # print(key)
                 if key not in required:
                     raise KeyError(f"{key} is not included in {path}")
             for key in defaults.keys():
